@@ -18,3 +18,6 @@ Brake Card
 ## Setup
 #### Install Python Ev3Dev Library
 pip install python-ev3dev2
+
+## Resource
+https://sites.google.com/site/ev3devpython/learn_ev3_python
