@@ -15,8 +15,17 @@ controller = WiiUPro()
 
 controller.Setup(log)
 controller.Connect()
+controller.Start()
 
 while True:
-    controller.MainLoop()
-    if controller.HOME_BUTTON:
+    if controller.Home:
         break
+    if controller.A:
+        Log("A Pressed")
+        break
+    if controller.B:
+        Log("B Pressed")
+        break
+
+
+controller.Stop()

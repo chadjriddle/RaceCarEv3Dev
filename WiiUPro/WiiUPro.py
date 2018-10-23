@@ -6,94 +6,193 @@ import threading
 
 class WiiUPro():
 
-    BUTTON_TYPE = 1
-    AXIS_TYPE = 3
+    __BUTTON_TYPE = 1
+    __AXIS_TYPE = 3
 
-    X_BUTTON = 307
-    A_BUTTON = 305
-    B_BUTTON = 304
-    Y_BUTTON = 308
-    PLUS_BUTTON = 315
-    MINUS_BUTTON = 314
-    HOME_BUTTON = 316
-    RIGHT_STICK_BUTTON = 318
-    LEFT_STICK_BUTTON = 317
-    DPAD_UP_BUTTON = 544
-    DPAD_RIGHT_BUTTON = 547
-    DPAD_DOWN_BUTTON = 545
-    DPAD_LEFT_BUTTON = 546
-    ZR_BUTTON = 313
-    ZL_BUTTON = 312
-    R_BUTTON = 311
-    L_BUTTON = 310
+    __X_BUTTON = 307
+    __A_BUTTON = 305
+    __B_BUTTON = 304
+    __Y_BUTTON = 308
+    __PLUS_BUTTON = 315
+    __MINUS_BUTTON = 314
+    __HOME_BUTTON = 316
+    __RIGHT_STICK_BUTTON = 318
+    __LEFT_STICK_BUTTON = 317
+    __DPAD_UP_BUTTON = 544
+    __DPAD_RIGHT_BUTTON = 547
+    __DPAD_DOWN_BUTTON = 545
+    __DPAD_LEFT_BUTTON = 546
+    __ZR_BUTTON = 313
+    __ZL_BUTTON = 312
+    __R_BUTTON = 311
+    __L_BUTTON = 310
 
-    LEFT_X_AXIS = 0
-    LEFT_Y_AXIS = 1
-    RIGHT_X_AXIS = 3
-    RIGHT_Y_AXIS = 4
+    __LEFT_X_AXIS = 0
+    __LEFT_Y_AXIS = 1
+    __RIGHT_X_AXIS = 3
+    __RIGHT_Y_AXIS = 4
 
-    values = {
-        X_BUTTON: 0,
-        A_BUTTON: 0,
-        B_BUTTON: 0,
-        Y_BUTTON: 0,
-        PLUS_BUTTON: 0,
-        MINUS_BUTTON: 0,
-        HOME_BUTTON: 0,
-        RIGHT_STICK_BUTTON: 0,
-        LEFT_STICK_BUTTON: 0,
-        DPAD_UP_BUTTON: 0,
-        DPAD_RIGHT_BUTTON: 0,
-        DPAD_DOWN_BUTTON: 0,
-        DPAD_LEFT_BUTTON: 0,
-        ZR_BUTTON: 0,
-        ZL_BUTTON: 0,
-        R_BUTTON: 0,
-        L_BUTTON: 0,
-        LEFT_X_AXIS: 0,
-        LEFT_Y_AXIS: 0,
-        RIGHT_X_AXIS: 0,
-        RIGHT_Y_AXIS: 0
+    __values = {
+        __X_BUTTON: 0,
+        __A_BUTTON: 0,
+        __B_BUTTON: 0,
+        __Y_BUTTON: 0,
+        __PLUS_BUTTON: 0,
+        __MINUS_BUTTON: 0,
+        __HOME_BUTTON: 0,
+        __RIGHT_STICK_BUTTON: 0,
+        __LEFT_STICK_BUTTON: 0,
+        __DPAD_UP_BUTTON: 0,
+        __DPAD_RIGHT_BUTTON: 0,
+        __DPAD_DOWN_BUTTON: 0,
+        __DPAD_LEFT_BUTTON: 0,
+        __ZR_BUTTON: 0,
+        __ZL_BUTTON: 0,
+        __R_BUTTON: 0,
+        __L_BUTTON: 0,
+        __LEFT_X_AXIS: 0,
+        __LEFT_Y_AXIS: 0,
+        __RIGHT_X_AXIS: 0,
+        __RIGHT_Y_AXIS: 0
     }
 
-    wiiUProDev = None
-    logFunc = None
-    gamepad = None
+    __wiiUProDev = None
+    __logFunc = None
+    __gamepad = None
+    __running = False
 
     def Setup(self, logFunc):
-        self.logFunc = logFunc
+        self.__logFunc = logFunc
 
     def Connect(self):
-        self.__log__("Finding WiiU Pro controller...")
+        self.__log("Finding WiiU Pro controller...")
         devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
         for device in devices:
             if device.name == 'Nintendo Wii Remote Pro Controller':
-                self.wiiUProDev = device.fn
-        if self.wiiUProDev:
-             self.__log__("Controller Found!")
-             self.gamepad = evdev.InputDevice(wiiUProDev)
+                self.__wiiUProDev = device.fn
+        if self.__wiiUProDev:
+             self.__log("Controller Found!")
+             self.__gamepad = evdev.InputDevice(wiiUProDev)
              return True
         else:
-             self.__log__("Controller NOT Found!")
+             self.__log("Controller NOT Found!")
              return False
 
-    def __log__(self, message):
-        if self.logFunc != None:
-            self.logFunc(message)
+    def Start(self):
+        threading.Thread(target=self.__mainLoop).start()
 
-    def MainLoop(self):
-        if self.gamepad == None:
-            self.__log__("No Gamepad Available")
+    def Stop(self):
+        self.__running = False
+
+    @property
+    def IsRunning(self):
+        return self.__running
+    
+    @property
+    def Home(self):
+        return self.__values[self.__HOME_BUTTON]
+    
+    @property
+    def Minus(self):
+        return self.__values[self.__MINUS_BUTTON]
+
+    @property
+    def Plus(self):
+        return self.__values[self.__PLUS_BUTTON]
+
+    @property
+    def A(self):
+        return self.__values[self.__A_BUTTON]
+
+    @property
+    def B(self):
+        return self.__values[self.__B_BUTTON]
+
+    @property
+    def X(self):
+        return self.__values[self.__X_BUTTON]
+
+    @property
+    def Y(self):
+        return self.__values[self.__Y_BUTTON]
+
+    @property
+    def R_Stick(self):
+        return self.__values[self.__RIGHT_STICK_BUTTON]
+
+    @property
+    def L_Stick(self):
+        return self.__values[self.__LEFT_STICK_BUTTON]
+
+    @property
+    def DP_Up(self):
+        return self.__values[self.__DPAD_UP_BUTTON]
+
+    @property
+    def DP_Down(self):
+        return self.__values[self.__DPAD_DOWN_BUTTON]
+
+    @property
+    def DP_Left(self):
+        return self.__values[self.__DPAD_LEFT_BUTTON]
+
+    @property
+    def DP_Right(self):
+        return self.__values[self.__DPAD_RIGHT_BUTTON]
+
+    @property
+    def ZR(self):
+        return self.__values[self.__ZR_BUTTON]
+
+    @property
+    def ZL(self):
+        return self.__values[self.__ZL_BUTTON]
+
+    @property
+    def RB(self):
+        return self.__values[self.__R_BUTTON]
+
+    @property
+    def LB(self):
+        return self.__values[self.__L_BUTTON]
+
+    @property
+    def LeftAxisY(self):
+        return self.__values[self.__LEFT_Y_AXIS]
+
+    @property
+    def LeftAxisX(self):
+        return self.__values[self.__LEFT_X_AXIS]
+
+    @property
+    def RightAxisY(self):
+        return self.__values[self.__RIGHT_Y_AXIS]
+
+    @property
+    def RightAxisX(self):
+        return self.__values[self.__RIGHT_X_AXIS]
+
+    def __log(self, message):
+        if self.__logFunc != None:
+            self.__logFunc(message)
+
+    def __mainLoop(self):
+        self.__running = True
+        if self.__gamepad == None:
+            self.__log("No Gamepad Available")
+            self.__running = False
             return
-        for event in self.gamepad.read_loop():   #this loops infinitely
+
+        for event in self.__gamepad.read_loop() and self.__running:   #this loops infinitely
             if event.type == 0:
                 if event.code != 0:
-                    self.__log__("0-" + str(event.code) + "-" + str(event.value))
-            elif event.type == self.AXIS_TYPE:            
-                self.values[event.code] = event.value
+                    self.__log("Unhandled Event: 0-" + str(event.code) + "-" + str(event.value))
+            elif event.type == self.__AXIS_TYPE:            
+                self.__values[event.code] = event.value
 
-            elif event.type == self.BUTTON_TYPE:
-                self.values[event.code] = event.value
+            elif event.type == self.__BUTTON_TYPE:
+                self.__values[event.code] = event.value
 
             else:
-                self.__log__(str(event.type) + "-" + str(event.code) + "-" + str(event.value))
+                self.__log("Unhandled Event: " + str(event.type) + "-" + str(event.code) + "-" + str(event.value))
+
