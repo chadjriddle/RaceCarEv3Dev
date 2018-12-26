@@ -16,3 +16,7 @@ while True:
         leds.set_color('LEFT', 'AMBER')
     elif btn.left:
         leds.set_color('LEFT', 'GREEN')
+
+leds.all_off()
+sleep(1000)
+print("Turning Off")
